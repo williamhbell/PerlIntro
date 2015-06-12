@@ -1,0 +1,485 @@
+\documentclass[17pt,dvips]{foils}
+\usepackage{graphics}
+\usepackage{latexsym}
+ %
+ % Declare the title, author and date as you would in regular \LaTeX.
+ %
+\title{An introduction to Perl}
+ %
+\author{W. H. Bell\\
+       \texttt{W.Bell@cern.ch}
+       }
+ % This is optional
+\date{\copyright 2010}
+
+\MyLogo{Perl shell programming}   % this is the default
+\rightfooter{\textsf{\thepage}}   % this is the default \thepage
+\leftheader{W. H. Bell}
+\rightheader{2010}                % \filedate is defined above
+ %
+\newcommand\bs{\char '134}   %  a backslash character for the \tt font
+ %
+ % Now we can begin the document.  The first thing is the title page
+ % on which we might put a VERY short abstract.
+% Extra commands
+\def\perl{\texttt{perl}$\;$}
+
+\begin{document}
+
+\maketitle
+ %
+\begin{abstract}
+\begin{center}
+A basic overview of the \perl scripting language is given.  The
+language is introduced using examples covering a few aspects at a
+time.  Reference tables are provided for commonly used \perl
+functionality.
+\end{center}
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foilhead{Perl - Introduction}
+\noindent There are lots of manual pages:
+\begin{verbatim}
+[wbell@ppepc54 ~]$ man perl
+\end{verbatim}
+%$
+For ease of access, the Perl manual has been split up into
+several sections.  (The way the manual page sections is divided
+depends on the version of Perl)
+
+\noindent For the less man page adept there is also a web site:
+http://www.perl.com/pub/q/documentation which presents the same
+information.
+
+% Need a quick word about man pages.  (Man normally uses less i.e. can
+% search as one does in less.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foilhead{Perl - Overview}
+\begin{itemize}
+\item A basic program
+\item Syntax
+  \begin{itemize}
+  \item Loops
+  \item Conditional Statements
+  \item Functions
+  \end{itemize}
+\item Variable Types
+% To be covered inside other examples.
+  \begin{itemize}
+  \item Scalars
+  \item Arrays
+%  \item Hashes
+% Just mention hashes at this point.
+  % Mention globs in passing as pointer like objects.
+  \end{itemize}
+\item Files Handles and their Usage
+  \begin{itemize}
+  \item Reading and Writing
+  \item Using Commands
+  \end{itemize}
+\item Command Line Arguments
+\item String Manipulation
+  \begin{itemize}
+  \item Pattern Matching
+  \item Subsitution
+  \item Splitting and Joining
+  \end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foilhead{Perl - A Basic Program}
+\begin{verbatim}
+#!/usr/bin/perl
+
+print STDOUT "In the beginning\n";
+\end{verbatim}
+{\bf example\_01.pl}: A basic perl program
+
+\begin{itemize}
+\item The first line: \texttt{PATH} to executable.
+\item The second line: print via the standard out.
+\end{itemize}
+
+% The first line is the same for any shell script.  It is the PATH to 
+% the executable that will interpret the script.  Note if this path is 
+% wrong it will report command not found.  One should use 'which' to 
+% check the location of perl.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\foilhead{For Loops}
+
+\begin{verbatim}
+# for loop
+for ($i=1; $i<=2; $i++) {
+  print STDERR "for loop $i\n";
+}
+
+# for loop 2
+@fruits = ("apple", "pear", "plumb");
+
+for my $fruit (@fruits) {
+  print STDOUT "$fruit ";
+}
+print STDOUT "\n";
+
+# for loop 3
+for (1..2) {
+  print STDOUT "Loop $_\n";
+}
+\end{verbatim}
+%$
+{\bf example\_02.pl}: A perl program demonstrating different types of loops.
+
+% Chat briefly about arrays and their usage.
+
+\begin{itemize}
+\item The C style is slower than the foreach style of for loop.
+\item Try to code in the Perl paradigm
+\end{itemize}
+
+% The 'for each' style of the second loop is faster than the former
+% example.  Should program in the latter style if possible.
+%============================================================
+
+\foilhead{More Loops}
+
+\noindent \texttt{while (}{\em condition}\texttt{) \{}\\
+{\em statement}\texttt{;\\
+\}}
+
+\noindent \texttt{do \{}\\
+{\em statement}\texttt{;\\
+\} until} {\em condition}\texttt{;}
+
+\noindent \texttt{do \{}\\
+{\em statement}\texttt{;\\
+\} while (}{\em condition}\texttt{);}
+
+\begin{itemize}
+\item The while loop is implemented within {\bf example\_02.pl}.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Conditional Statements: if}
+\begin{verbatim}
+#!/usr/bin/perl
+
+for (1..3) {
+  if($_==1) {
+    print STDOUT "1, ";
+  }
+  elsif($_==2) {
+    print STDOUT "2, ";
+  }
+  else {
+   print STDOUT "3!\n";
+  }
+}
+\end{verbatim}
+%$
+{\bf example\_03.pl}: A program demonstrating an \texttt{if}, \texttt{elsif}, 
+\texttt{else} statement.
+
+\begin{itemize}
+\item Note the usage of the \texttt{\$\_} variable.
+\item If the output of an argument is not assigned to a variable it is
+implicitly assigned to \texttt{\$\_}.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Conditional Statements: die, unless}
+\begin{verbatim}
+#!/usr/bin/perl
+
+for (1..5) {
+  die "It's time to die." unless ($_<4);
+  print STDOUT "$_\n";
+}
+\end{verbatim}
+%$
+{\bf example\_04.pl}: A simple program to illustrate the use of die, unless
+conditional statements.
+
+\begin{itemize}
+\item The \texttt{die} message is printed together with a line number.
+\item Useful for critical checks, e.g. opening files etc.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Functions}
+\begin{verbatim}
+#!/usr/bin/perl
+
+printStrings(1,2,3);
+
+sub printStrings {
+  my ($a, $b, $c) = @_;
+  
+  print STDOUT "a=$a, b=$b, c=$c\n";
+}
+\end{verbatim}
+%$
+{\bf example\_05.pl}: A simple script to demonstrate basic function usage.
+
+\begin{itemize}
+\item The usage of \texttt{@\_} is similar to that of \texttt{\$\_}.
+The values are assigned implicitly.
+\item Warning: passing arrays in this way can be tricky.
+\end{itemize}
+
+
+%============================================================
+
+\foilhead{File I/O - Writing}
+
+\begin{verbatim}
+$outputfile = "perl_output";
+
+die ("Can't open $outputfile for writing\n")
+  unless open(OUTPUT, "> $outputfile");
+
+print OUTPUT "Pythia 6.2\n";
+print OUTPUT "EvtGen On\n";
+print OUTPUT "Geant v4\n";
+   
+close(OUTPUT);
+\end{verbatim}
+%$
+{\bf example\_06.pl}: A program that illustrates usage of file i/o. [The
+writing section.]
+
+\begin{itemize}
+\item The file handle works in the same way as the STDOUT handle.
+\end{itemize}
+
+%============================================================
+
+\foilhead{File I/O - Reading}
+
+\begin{verbatim}
+die ("Can't open $outputfile for reading\n")
+  unless open(INPUT, "< $outputfile");
+
+while (<INPUT>) {
+  chomp;
+  if(defined $_) {
+    print STDOUT "$_\n";
+  }
+}
+close(INPUT);
+
+unlink($outputfile);
+\end{verbatim}
+%$
+{\bf example\_06.pl}: A program that illustrates usage of file i/o. [The
+reading section.]
+
+% Note the usage of $_ and chomp.
+
+\begin{itemize}
+\item The value following the file handle can be many different
+things. It behaves like a commnand line, i.e. pipe and redirection can
+be used.
+%\item All unix shell commands are available via this second argument.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Array Manipulation}
+\begin{verbatim}
+... 
+my @run_numbers;
+print STDOUT "\@run_numbers last index=";
+while ($run = <RUNFILE>) {
+  chomp($run);
+  push(@run_numbers,$run);
+  print STDOUT "$#run_numbers... ";
+}
+print STDOUT "\n\n";
+ 
+print STDOUT "Run Numbers\n";
+while ($#run_numbers >= 0) {
+  $run=shift(@run_numbers);
+  print STDOUT "$run\n";
+}
+print STDOUT "\n";
+                                                                               print STDOUT "\@run_numbers size=$#run_numbers\n";
+\end{verbatim}
+%$
+{\bf example\_07.pl}: A program to demonstrate dynamic array management
+
+\begin{itemize}
+\item \texttt{push} and \texttt{pop}, add and remove from the end of the array.
+\item \texttt{unshift} and \texttt{shift}, add and remove from the beginning of the array.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Using Commands}
+
+\begin{verbatim}
+# find files which have been modified in the last 60 minutes and open
+# the output as a file input stream.
+open(FINDFILE,  "find    ./ -cmin -60 |");
+
+# While there are files returned from the find command
+while (<FINDFILE>) {
+  chomp;
+  if(defined $_) {
+     print STDOUT " $_ was in the last 60 minutes.\n";
+  }
+}
+close(FINDFILE);
+\end{verbatim}
+%$
+{\bf example\_08.pl}: A program to demonstrate the usage commands piped into a
+file input stream
+
+% Note chomp and the usage of $_.
+
+\begin{itemize}
+\item Any executable can be run in a similar manner.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Command Line Arguments}
+
+\begin{verbatim}
+$numArgs = $#ARGV + 1;
+print STDOUT "\n $0 with $numArgs command-line arguments\n\n ";
+
+foreach $argnum (0 .. $#ARGV) {
+   print STDOUT "\$ARGV[$argnum] = $ARGV[$argnum], ";
+}
+
+print STDOUT "\n\n";
+\end{verbatim}
+%$
+{\bf example\_09.pl}: A program demonstrating usage of command line arguments
+
+\begin{itemize}
+\item Arguments are accessed via \texttt{@ARGV}.
+\item \texttt{\$\#ARGV} index of last argument in array.
+\item Executable name via \texttt{\$0}
+\end{itemize}
+
+%============================================================
+
+\foilhead{Pattern Matching}
+
+\begin{verbatim}
+open(FILELIST,  "ls |");
+
+while ($file = <FILELIST>) {
+  chomp($file);
+  if(defined $file) {
+    if($file =~ /ex[1-4]\.pl/) {
+      print STDOUT " $file \n";
+    }
+  }
+}
+close(FILELIST);
+\end{verbatim}
+%$
+{\bf example\_10.pl}: A script to demonstrate pattern matching with regular
+expressions.
+
+% Mention the usage of the file handle without $_ and the =~ syntax.
+
+\begin{itemize}
+\item Matches file containing \texttt{ex} followed by one of 1,2,3,4
+and \texttt{.pl}.  (If the file was called fedex1.pl it would match
+too.)
+% Need to use an anchor to avoid this problem.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Pattern Matching}
+
+\begin{verbatim}
+open(FILELIST,  "ls |");
+
+while ($file = <FILELIST>) {
+  chomp($file);
+  if(defined $file) {
+    if($file =~ /^ex\d.[\w]/) {
+      print STDOUT " $file \n";
+    }
+  }
+}
+close(FILELIST);
+\end{verbatim}
+%$
+{\bf example\_11.pl}: A program to demonstrate using an anchor and decimal and word
+
+\begin{itemize}
+\item The program only selects files beginning with \texttt{ex}
+followed by a single number character and then any word extension
+e.g. \texttt{pl} or \texttt{sh}.
+\end{itemize}
+
+%============================================================
+
+\foilhead{Substitution}
+
+\begin{verbatim}
+@al = ('a','b','c','d','e','f','g','h','i','j','k','l','m','n',
+       'o','p','q','r','s','t','u','v','w','x','y','z');
+
+@AL = ('A','B','C','D','E','F','G','H','I','J','K','L','M','N',
+       'O','P','Q','R','S','T','U','V','W','X','Y','Z');
+     
+open(LISTOF,"ls |");
+
+while (<LISTOF>) {
+  chomp;
+  if(defined $_) {
+    $i = 0;
+    while ($i<26) {
+      s/$al[$i]/$AL[$i]/g;
+      $i = $i + 1;
+    }
+    print STDOUT "$_\n";
+  }
+}
+close(LISTOF);
+\end{verbatim}
+%$
+{\bf example\_12.pl}: A program to demonstrate substitution.
+
+% global is needed to replace all instances.  If it isn't used only
+% the first instance will be replaced.
+
+%============================================================
+
+\foilhead{Splitting and Joining}
+
+\begin{verbatim}
+while (<TABFILE>) {
+  chomp;
+  if(defined $_) {
+    @data = split(/\t/,$_);
+    $data_line = join(',',@data);
+    print CVSFILE "$data_line\n";
+  }
+}
+
+close(TABFILE)
+\end{verbatim}
+%$
+{\bf example\_13.pl}: A program to demonstrate the split and join.
+
+
+\end{document}
+\endinput
